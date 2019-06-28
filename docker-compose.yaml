@@ -1,0 +1,38 @@
+version: '3.4'
+services:
+  db:
+    restart: always
+    image: postgres:latest
+    volumes:
+      - .:/docker-entrypoint-initdb.d
+    ports:
+      - "54322:5432"
+    environment:
+      - POSTGRES_USER:'news_user'
+      - POSTGRES_PASSWORD:'123456'
+      - POSTGRES_DB:'newsdb'
+
+  stan:
+    restart: always
+    image: nats-streaming:latest
+    volumes: 
+      - ./stan.conf:/stan.conf
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    depends_on:
+      - db
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:15672"]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 5
+    command: ["-c=/stan.conf" ]
+    
+  # books-service:
+  #   restart: always
+  #   build: .
+  #   ports:
+  #     - "8000:8000"
+  #   links:
+  #     - db

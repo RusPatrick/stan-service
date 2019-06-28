@@ -1,0 +1,6 @@
+syntax = "proto3";
+
+message News {
+    string Title = 1;
+    string Date = 2;
+}

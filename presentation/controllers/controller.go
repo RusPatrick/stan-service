@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"github.com/ruspatrick/stan-svc/application/services"
 	"encoding/json"
 	"net/http"
 
@@ -13,6 +14,7 @@ func PostMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	services.
 }
 
 func GetMessages(w http.ResponseWriter, r *http.Request) {

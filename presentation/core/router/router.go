@@ -22,27 +22,32 @@ const (
 )
 
 func NewRouter() *mux.Router {
-	routes := Routes{
+	routes := []Route{
 		{
-			Name:        "post-message",
+			Name:        "post-news",
 			Method:      http.MethodPost,
-			Path:        "/messages",
-			HandlerFunc: controllers.PostMessage,
+			Path:        "/news",
+			HandlerFunc: controllers.PostNews,
 		}, {
-			Name:        "get-message",
+			Name:        "get-news",
 			Method:      http.MethodGet,
-			Path:        "/messages",
-			HandlerFunc: controllers.GetMessages,
+			Path:        "/news",
+			HandlerFunc: controllers.GetNews,
 		},
 	}
 
 	r := mux.NewRouter()
-	apiV1 := r.Path(apiV1Prefix).Subrouter()
+	// r.Name("post-news").
+	// 	Methods(http.MethodPost).
+	// 	Path("/news").
+	// 	HandlerFunc(controllers.PostNews)
+
+	apiV1 := r.PathPrefix(apiV1Prefix).Subrouter()
 
 	for _, route := range routes {
 		apiV1.Name(route.Name).
 			Methods(route.Method).
-			Path(route.Method).
+			Path(route.Path).
 			HandlerFunc(route.HandlerFunc)
 	}
 

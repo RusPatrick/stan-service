@@ -1,13 +1,21 @@
 package services
 
 import (
+	repositoriesI "github.com/ruspatrick/stan-svc/domain/interfaces/repositories"
 	"github.com/ruspatrick/stan-svc/domain/models"
-	"github.com/ruspatrick/stan-svc/domain/repositories"
+	"github.com/ruspatrick/stan-svc/infrastructure/repositories"
 )
 
-var repository repositories.Nats
+var repository repositoriesI.SendToStaner
 
-func PostMessage(message models.Message) error {
-	news.
-	return nil
+func init() {
+	repository = repositories.InitRepo()
+}
+
+func PostMessage(news models.News) error {
+	return repository.SendNews(news.ToEntity())
+}
+
+func GetMessage(channelName string) (*models.News, error) {
+	return repository.GetNews(channelName)
 }

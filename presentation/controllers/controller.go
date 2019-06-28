@@ -1,22 +1,45 @@
 package controllers
 
 import (
-	"github.com/ruspatrick/stan-svc/application/services"
 	"encoding/json"
+	"log"
 	"net/http"
 
+	"github.com/gorilla/mux"
+
+	"github.com/ruspatrick/stan-svc/application/services"
 	"github.com/ruspatrick/stan-svc/domain/models"
 )
 
-func PostMessage(w http.ResponseWriter, r *http.Request) {
-	message := new(models.Message)
+func PostNews(w http.ResponseWriter, r *http.Request) {
+	message := new(models.News)
 	if err := json.NewDecoder(r.Body).Decode(message); err != nil {
 		return
 	}
 
-	services.
+	services.PostMessage(*message)
+	w.WriteHeader(200)
 }
 
-func GetMessages(w http.ResponseWriter, r *http.Request) {
+func GetNews(w http.ResponseWriter, r *http.Request) {
+	news := mux.Vars(r)["news"]
 
+	news, err := services.GetMessage(news)
+	if err != nil {
+		w.WriteHeader(400)
+		w.Write(err)
+		log.Println(err)
+		return
+	}
+
+	response, err := json.Marshal(news)
+	if err != nil {
+		w.WriteHeader(400)
+		w.Write(err)
+		log.Println(err)
+		return
+	}
+
+	w.WriteHeader(200)
+	w.Write(response)
 }

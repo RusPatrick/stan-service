@@ -22,12 +22,12 @@ func PostNews(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetNews(w http.ResponseWriter, r *http.Request) {
-	news := mux.Vars(r)["news"]
+	newsParam := mux.Vars(r)["news"]
 
-	news, err := services.GetMessage(news)
+	news, err := services.GetMessage(newsParam)
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(err)
+		w.Write([]byte(err.Error()))
 		log.Println(err)
 		return
 	}
@@ -35,7 +35,7 @@ func GetNews(w http.ResponseWriter, r *http.Request) {
 	response, err := json.Marshal(news)
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(err)
+		w.Write([]byte(err.Error()))
 		log.Println(err)
 		return
 	}

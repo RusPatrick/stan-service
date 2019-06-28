@@ -31,7 +31,7 @@ func NewRouter() *mux.Router {
 		}, {
 			Name:        "get-news",
 			Method:      http.MethodGet,
-			Path:        "/news",
+			Path:        "/news/{news}",
 			HandlerFunc: controllers.GetNews,
 		},
 	}

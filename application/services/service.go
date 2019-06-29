@@ -12,10 +12,10 @@ func init() {
 	repository = repositories.InitRepo()
 }
 
-func PostMessage(news models.News) error {
+func PostNews(news models.News) error {
 	return repository.SendNews(news.ToEntity())
 }
 
-func GetMessage(channelName string) (*models.News, error) {
-	return repository.GetNews(channelName)
+func GetNews(channelName string, n int) ([]models.News, error) {
+	return repository.GetNews(channelName, n)
 }

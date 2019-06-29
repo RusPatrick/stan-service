@@ -7,5 +7,5 @@ import (
 
 type SendToStaner interface {
 	SendNews(news pbnews.News) error
-	GetNews(channelName string) (*models.News, error)
+	GetNews(durableName string, numNews int) ([]models.News, error)
 }

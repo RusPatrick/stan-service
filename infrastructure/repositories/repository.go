@@ -1,13 +1,15 @@
 package repositories
 
 import (
+	"errors"
 	"log"
+	"time"
 
 	"github.com/gogo/protobuf/proto"
-	"github.com/nats-io/nats.go"
 	"github.com/nats-io/stan.go"
 	"github.com/ruspatrick/stan-svc/domain/models"
 	pbnews "github.com/ruspatrick/stan-svc/domain/models/news"
+	customerrors "github.com/ruspatrick/stan-svc/infrastructure/errors"
 )
 
 type StanConnect struct {
@@ -16,16 +18,16 @@ type StanConnect struct {
 
 const (
 	stanNewsSubject = "news"
+	natsUrl         = "nats://stan:4222"
 )
 
-var sc *StanConnect
+var (
+	sc           *StanConnect
+	ErrNoNewNews = errors.New("новые новости отсутсвуют")
+)
 
 func InitRepo() *StanConnect {
-	nc, err := nats.Connect("nats://localhost:4222")
-	if err != nil {
-		log.Fatalln(err)
-	}
-	scTmp, err := stan.Connect("news_stan", "news_client", stan.NatsConn(nc))
+	scTmp, err := stan.Connect("news_stan", "news_client", stan.NatsURL(natsUrl))
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -37,28 +39,46 @@ func InitRepo() *StanConnect {
 }
 
 func (s StanConnect) SendNews(news pbnews.News) error {
-	data, _ := news.Marshal()
-	return s.Publish(stanNewsSubject, data)
+	data, err := news.Marshal()
+	if err != nil {
+		return customerrors.CreateServerError(err, "ошибка", "ошибка при работе c хранилищем")
+	}
+	if err := s.Publish(stanNewsSubject, data); err != nil {
+		return customerrors.CreateServerError(err, "ошибка", "ошибка при работе c хранилищем")
+	}
+	return nil
 }
 
-func (s StanConnect) GetNews(channelName string) (*models.News, error) {
-	var news models.News
+func (s StanConnect) GetNews(durableName string, numberMessages int) ([]models.News, error) {
+	news := make([]models.News, 0)
+	timeout := make(chan bool)
+	go func() {
+		time.Sleep(time.Second)
+		timeout <- true
+	}()
 	getMessages := func(msg *stan.Msg) {
 		newspb := pbnews.News{}
 		if err := proto.Unmarshal(msg.Data, &newspb); err != nil {
-			log.Println("FUCKED unmarhal")
+			log.Println("bad unmarhal: " + err.Error())
 		}
 
-		news = models.News{
+		news = append(news, models.News{
 			Title: newspb.Title,
 			Date:  newspb.Date,
-		}
-	}
-	sub, err := s.Subscribe(channelName, getMessages, stan.DeliverAllAvailable())
-	if err != nil {
-		return nil, err
-	}
-	sub.SetPendingLimits(1, -1)
+		})
 
-	return &news, nil
+		timeout <- false
+	}
+
+	sub, err := s.Subscribe(stanNewsSubject, getMessages, stan.DeliverAllAvailable(), stan.DurableName(durableName), stan.MaxInflight(1))
+	if err != nil {
+		return nil, customerrors.CreateServerError(err, "ошибка", "ошибка при работе c хранилищем")
+	}
+	defer sub.Close()
+
+	if <-timeout {
+		return nil, customerrors.CreateServerError(ErrNoNewNews, "ошибка", ErrNoNewNews.Error())
+	}
+
+	return news, nil
 }

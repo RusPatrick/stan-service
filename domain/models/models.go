@@ -15,3 +15,20 @@ func (n News) ToEntity() news.News {
 		Date:  n.Date,
 	}
 }
+
+type NullableString struct {
+	value    string
+	hasValue bool
+}
+
+func NewNullableString(value string, hasValue bool) NullableString {
+	return NullableString{value: value, hasValue: hasValue}
+}
+
+func (ns NullableString) HasValue() bool {
+	return ns.hasValue
+}
+
+func (ns NullableString) GasValue() string {
+	return ns.value
+}

@@ -22,17 +22,12 @@ services:
       - "8222:8222"
     depends_on:
       - db
-    # healthcheck:
-    #   test: ["CMD", "curl", "-f", "http://localhost:15672"]
-    #   interval: 30s
-    #   timeout: 10s
-    #   retries: 5
     command: ["-c=/stan.conf" ]
     
-  # news:
-  #   restart: always
-  #   build: .
-  #   ports:
-  #     - "8000:8000"
-  #   links:
-  #     - stan
+  news:
+    restart: always
+    build: .
+    ports:
+      - "8000:8000"
+    links:
+      - stan

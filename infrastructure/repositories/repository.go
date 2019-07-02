@@ -49,7 +49,7 @@ func (s StanConnect) SendNews(news pbnews.News) error {
 	return nil
 }
 
-func (s StanConnect) GetNews(durableName string, numberMessages int) ([]models.News, error) {
+func (s StanConnect) GetNews(durableName string) ([]models.News, error) {
 	news := make([]models.News, 0)
 	timeout := make(chan bool)
 	go func() {

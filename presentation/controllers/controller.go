@@ -44,32 +44,7 @@ func GetNews(w http.ResponseWriter, r *http.Request) {
 		writeError(w, err)
 	}
 
-	news, err := services.GetNews(durableNameValue.GasValue(), 1)
-	if err != nil && err.Error() != repositories.ErrNoNewNews.Error() {
-		writeError(w, err)
-		return
-	} else if err != nil && err.Error() == repositories.ErrNoNewNews.Error() {
-		writeSuccess(w, http.StatusNoContent, nil)
-		return
-	}
-
-	response, err := json.Marshal(news)
-	if err != nil {
-		w.WriteHeader(400)
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	writeSuccess(w, http.StatusOK, response)
-}
-
-func GetAllNews(w http.ResponseWriter, r *http.Request) {
-	durableNameValue, err := getParam(r, DurableNameParam)
-	if err != nil {
-		writeError(w, err)
-	}
-
-	news, err := services.GetNews(durableNameValue.GasValue(), 100)
+	news, err := services.GetNews(durableNameValue.GasValue())
 	if err != nil && err.Error() != repositories.ErrNoNewNews.Error() {
 		writeError(w, err)
 		return

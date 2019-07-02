@@ -33,11 +33,6 @@ func NewRouter() *mux.Router {
 			Method:      http.MethodGet,
 			Path:        "/news/{durableName}",
 			HandlerFunc: controllers.GetNews,
-		}, {
-			Name:        "get-all-news",
-			Method:      http.MethodGet,
-			Path:        "/news/all/{durableName}",
-			HandlerFunc: controllers.GetAllNews,
 		},
 	}
 

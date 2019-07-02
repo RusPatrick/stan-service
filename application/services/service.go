@@ -16,6 +16,6 @@ func PostNews(news models.News) error {
 	return repository.SendNews(news.ToEntity())
 }
 
-func GetNews(channelName string, n int) ([]models.News, error) {
-	return repository.GetNews(channelName, n)
+func GetNews(channelName string) ([]models.News, error) {
+	return repository.GetNews(channelName)
 }

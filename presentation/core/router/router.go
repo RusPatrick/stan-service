@@ -42,11 +42,6 @@ func NewRouter() *mux.Router {
 	}
 
 	r := mux.NewRouter()
-	// r.Name("post-news").
-	// 	Methods(http.MethodPost).
-	// 	Path("/news").
-	// 	HandlerFunc(controllers.PostNews)
-
 	apiV1 := r.PathPrefix(apiV1Prefix).Subrouter()
 
 	for _, route := range routes {
